@@ -184,6 +184,9 @@ public class HsRecyclerView extends RecyclerView {
         protected void setRecyclerView(HsRecyclerView view){
             this.mRecyclerView = view;
         }
+        protected HsRecyclerView getRecyclerView(){
+            return this.mRecyclerView;
+        }
 
         public abstract Holder onCreateHsViewHolder(ViewGroup parent, int viewType);
         public abstract void onBindHsViewHolder(Holder holder, int position, boolean isChecked);

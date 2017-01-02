@@ -107,6 +107,10 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
             return mHsRecyclerView;
         }
 
+        void setHsRecyclerView(HsExpandableRecyclerView recyclerView){
+            this.mHsRecyclerView = recyclerView;
+        }
+
         @UiThread
         public ParentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -199,6 +203,10 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
         @Override
         protected HsExpandableRecyclerView getHsRecyclerView() {
             return mHsRecyclerView;
+        }
+
+        void setHsRecyclerView(HsExpandableRecyclerView recyclerView){
+            this.mHsRecyclerView = recyclerView;
         }
 
         public ChildViewHolder(@NonNull View itemView) {
@@ -430,6 +438,7 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
             ExpandableWrapper<P, C> listItem = mFlatItemList.get(flatPosition);
             if (listItem.isParent()) {
                 PVH parentViewHolder = (PVH) holder;
+                parentViewHolder.setHsRecyclerView((HsExpandableRecyclerView) getRecyclerView());
 
                 if (parentViewHolder.shouldItemViewClickToggleExpansion()) {
                     parentViewHolder.setMainItemClickToExpand();
@@ -440,6 +449,7 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
                 onBindParentHsViewHolder(parentViewHolder, getNearestParentPosition(flatPosition), isChecked, listItem.getParent());
             } else {
                 CVH childViewHolder = (CVH) holder;
+                childViewHolder.setHsRecyclerView((HsExpandableRecyclerView) getRecyclerView());
                 childViewHolder.mChild = listItem.getChild();
                 onBindChildHsViewHolder(childViewHolder, getNearestParentPosition(flatPosition), getChildPosition(flatPosition), isChecked, listItem.getChild());
             }
