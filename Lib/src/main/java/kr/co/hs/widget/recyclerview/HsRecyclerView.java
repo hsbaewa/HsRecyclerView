@@ -187,6 +187,10 @@ public class HsRecyclerView extends RecyclerView {
         protected HsRecyclerView getRecyclerView(){
             return this.mRecyclerView;
         }
+        protected boolean isMultiChoiceMode(){
+            int nRecyclerViewChoiceMode = this.mRecyclerView.getChoiceMode();
+            return (nRecyclerViewChoiceMode == CHOICE_MODE_MULTIPLE || nRecyclerViewChoiceMode == CHOICE_MODE_MULTIPLE_MODAL);
+        }
 
         public abstract Holder onCreateHsViewHolder(ViewGroup parent, int viewType);
         public abstract void onBindHsViewHolder(Holder holder, int position, boolean isChecked);
