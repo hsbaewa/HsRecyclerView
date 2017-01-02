@@ -65,53 +65,14 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
         boolean onItemLongClick(HsExpandableRecyclerView adapterView, View itemView, int parentPosition, int childPosition);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Override
+    public void setAdapter(Adapter adapter) {
+        super.setAdapter(adapter);
+        if(adapter instanceof HsExpandableAdapter){
+            HsExpandableAdapter expandableAdapter = (HsExpandableAdapter) adapter;
+            expandableAdapter.setRecyclerView(this);
+        }
+    }
 
     public interface Parent<C> {
         List<C> getChildList();

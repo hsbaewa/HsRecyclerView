@@ -181,7 +181,7 @@ public class HsRecyclerView extends RecyclerView {
             }
             onBindHsViewHolder(hsViewHolder, position, isChecked);
         }
-        private void setRecyclerView(HsRecyclerView view){
+        protected void setRecyclerView(HsRecyclerView view){
             this.mRecyclerView = view;
         }
 
