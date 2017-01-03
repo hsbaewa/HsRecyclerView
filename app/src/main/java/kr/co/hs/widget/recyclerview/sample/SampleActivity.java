@@ -27,8 +27,13 @@ public class SampleActivity extends HsRecyclerViewActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
 
+        HsRecyclerView temp = (HsRecyclerView) findViewById(R.id.RecyclerView);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        temp.setLayoutManager(llm);
+        setRecyclerView(temp);
 
-        getRecyclerView().setAdapter(getRecyclerAdapter());
+        setRecyclerAdapter(new SampleAdapter());
+//        getRecyclerView().setAdapter(getRecyclerAdapter());
     }
 
     @Override
@@ -41,22 +46,6 @@ public class SampleActivity extends HsRecyclerViewActivity {
         Snackbar.make(getRecyclerView(), ""+position+" 롱 클릭함", Snackbar.LENGTH_LONG).show();
         return false;
     }
-
-    @Override
-    protected HsRecyclerView onCreateRecyclerView() {
-        HsRecyclerView temp = (HsRecyclerView) findViewById(R.id.RecyclerView);
-        LinearLayoutManager llm = new LinearLayoutManager(getContext());
-        temp.setLayoutManager(llm);
-        return temp;
-    }
-
-    @Override
-    protected HsRecyclerView.HsAdapter onCreateRecyclerAdapter() {
-        return new SampleAdapter();
-    }
-
-
-
 
 
 
