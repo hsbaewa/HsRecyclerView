@@ -19,8 +19,9 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements HsRec
         if(isMultiChoiceMode()){
             //멀티선택모드이다. 선택한 아이템을 체크해주자
             adapterView.setChecked(position, !adapterView.isChecked(position));
-            if(getRecyclerAdapter() != null)
-                getRecyclerAdapter().notifyItemChanged(position);
+            HsRecyclerView.HsAdapter adapter = (HsRecyclerView.HsAdapter) adapterView.getAdapter();
+            if(adapter != null)
+                adapter.notifyItemChanged(position);
         }
         onItemClick(adapterView, itemView, position, adapterView.isChecked(position));
     }
@@ -31,8 +32,10 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements HsRec
             //롱터치하여 멀티선택 모드로 변환 시키면서 선택된 아이템 체크함.
             adapterView.setChoiceMode(HsRecyclerView.CHOICE_MODE_MULTIPLE);
             adapterView.setChecked(position, !adapterView.isChecked(position));
-            if(getRecyclerAdapter() != null)
-                getRecyclerAdapter().notifyItemChanged(position);
+            HsRecyclerView.HsAdapter adapter = (HsRecyclerView.HsAdapter) adapterView.getAdapter();
+            if(adapter != null){
+                adapter.notifyItemChanged(position);
+            }
         }
         //멀티선택 모드임
         return onItemLongClick(adapterView, itemView, position, adapterView.isChecked(position));
@@ -41,10 +44,13 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements HsRec
     @Override
     public void onBackPressed() {
         if(isMultiChoiceMode()){
-            if(getRecyclerView() != null)
-                getRecyclerView().setChoiceMode(HsRecyclerView.CHOICE_MODE_NONE);
-            if(getRecyclerAdapter() != null)
-                getRecyclerAdapter().notifyDataSetChanged();
+            if(getRecyclerView() != null){
+                HsRecyclerView hsRecyclerView = getRecyclerView();
+                hsRecyclerView.setChoiceMode(HsRecyclerView.CHOICE_MODE_NONE);
+                HsRecyclerView.HsAdapter adapter = (HsRecyclerView.HsAdapter) hsRecyclerView.getAdapter();
+                if(adapter != null)
+                    adapter.notifyDataSetChanged();
+            }
         }else{
             super.onBackPressed();
         }
@@ -58,22 +64,24 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements HsRec
         return mRecyclerView;
     }
 
-    protected HsRecyclerView.HsAdapter getRecyclerAdapter(){
-        return mAdapter;
-    }
-
     protected void setRecyclerView(HsRecyclerView recyclerView){
         this.mRecyclerView = recyclerView;
-    }
-
-    protected void setRecyclerAdapter(HsRecyclerView.HsAdapter adapter){
-        this.mAdapter = adapter;
+        this.mRecyclerView.setOnItemClickListener(this);
+        this.mRecyclerView.setOnItemLongClickListener(this);
     }
 
     protected boolean isMultiChoiceMode(){
         if(getRecyclerView() == null)
             return false;
-
         return getRecyclerView().getChoiceMode() == HsRecyclerView.CHOICE_MODE_MULTIPLE || getRecyclerView().getChoiceMode() == HsRecyclerView.CHOICE_MODE_MULTIPLE_MODAL;
+    }
+
+    protected void setChecked(int position, boolean check){
+        if(getRecyclerView() != null)
+            getRecyclerView().setChecked(position, check);
+    }
+
+    protected boolean isChecked(int position){
+        return getRecyclerView().isChecked(position);
     }
 }
