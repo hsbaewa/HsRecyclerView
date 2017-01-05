@@ -8,7 +8,7 @@ import kr.co.hs.widget.recyclerview.HsRecyclerView;
 /**
  * Created by Bae on 2017-01-02.
  */
-public abstract class HsRecyclerViewActivity extends HsActivity implements HsRecyclerView.OnItemClickListener, HsRecyclerView.OnItemLongClickListener {
+public abstract class HsRecyclerViewActivity extends HsActivity implements IHsRecyclerViewContext, HsRecyclerView.OnItemClickListener, HsRecyclerView.OnItemLongClickListener {
 
     private HsRecyclerView mRecyclerView;
     private HsRecyclerView.HsAdapter mAdapter;
@@ -60,28 +60,28 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements HsRec
     public abstract boolean onItemLongClick(HsRecyclerView recyclerView, View itemView, int position, boolean isCurrentChecked);
 
 
-    protected HsRecyclerView getRecyclerView(){
+    public HsRecyclerView getRecyclerView(){
         return mRecyclerView;
     }
 
-    protected void setRecyclerView(HsRecyclerView recyclerView){
+    public void setRecyclerView(HsRecyclerView recyclerView){
         this.mRecyclerView = recyclerView;
         this.mRecyclerView.setOnItemClickListener(this);
         this.mRecyclerView.setOnItemLongClickListener(this);
     }
 
-    protected boolean isMultiChoiceMode(){
+    public boolean isMultiChoiceMode(){
         if(getRecyclerView() == null)
             return false;
         return getRecyclerView().getChoiceMode() == HsRecyclerView.CHOICE_MODE_MULTIPLE || getRecyclerView().getChoiceMode() == HsRecyclerView.CHOICE_MODE_MULTIPLE_MODAL;
     }
 
-    protected void setChecked(int position, boolean check){
+    public void setChecked(int position, boolean check){
         if(getRecyclerView() != null)
             getRecyclerView().setChecked(position, check);
     }
 
-    protected boolean isChecked(int position){
+    public boolean isChecked(int position){
         return getRecyclerView().isChecked(position);
     }
 }
