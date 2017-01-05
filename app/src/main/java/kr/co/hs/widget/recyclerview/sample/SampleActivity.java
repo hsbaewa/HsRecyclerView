@@ -30,9 +30,11 @@ public class SampleActivity extends HsRecyclerViewActivity {
         HsRecyclerView temp = (HsRecyclerView) findViewById(R.id.RecyclerView);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         temp.setLayoutManager(llm);
+
+        temp.setAdapter(new SampleAdapter());
+
         setRecyclerView(temp);
 
-        setRecyclerAdapter(new SampleAdapter());
 //        getRecyclerView().setAdapter(getRecyclerAdapter());
     }
 

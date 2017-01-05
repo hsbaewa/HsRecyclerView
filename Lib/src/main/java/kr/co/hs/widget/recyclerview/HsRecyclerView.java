@@ -125,6 +125,43 @@ public class HsRecyclerView extends RecyclerView {
             }
         }
     }
+    public boolean isCheckAll(){
+        switch (getChoiceMode()){
+            case CHOICE_MODE_NONE:{
+                return false;
+            }
+            case CHOICE_MODE_SINGLE:{
+                return false;
+            }
+            case CHOICE_MODE_MULTIPLE:
+            case CHOICE_MODE_MULTIPLE_MODAL:
+            {
+                return mChoiceIndex.size() == getAdapter().getItemCount();
+            }
+            default:return false;
+        }
+    }
+    public void setCheckAll(boolean check){
+        switch (getChoiceMode()){
+            case CHOICE_MODE_NONE:{
+                return;
+            }
+            case CHOICE_MODE_SINGLE:{
+                return;
+            }
+            case CHOICE_MODE_MULTIPLE:
+            case CHOICE_MODE_MULTIPLE_MODAL:
+            {
+                HsAdapter adapter = (HsAdapter) getAdapter();
+                if(adapter != null){
+                    for(int i=0;i<adapter.getItemCount();i++){
+                        setChecked(i, check);
+                    }
+                }
+            }
+            default:return;
+        }
+    }
 
     public ArrayList<Integer> getChoiceIndex(){
         return mChoiceIndex;
