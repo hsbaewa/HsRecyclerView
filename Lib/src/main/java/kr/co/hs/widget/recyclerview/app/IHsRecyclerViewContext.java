@@ -21,4 +21,5 @@ public interface IHsRecyclerViewContext {
     boolean isMultiChoiceMode();
     void setChecked(int position, boolean check);
     boolean isChecked(int position);
+    void setChoiceMode(int mode);
 }

@@ -34,7 +34,7 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements IHsRe
             adapterView.setChecked(position, !adapterView.isChecked(position));
             HsRecyclerView.HsAdapter adapter = (HsRecyclerView.HsAdapter) adapterView.getAdapter();
             if(adapter != null){
-                adapter.notifyItemChanged(position);
+                adapter.notifyDataSetChanged();
             }
         }
         //멀티선택 모드임
@@ -83,5 +83,11 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements IHsRe
 
     public boolean isChecked(int position){
         return getRecyclerView().isChecked(position);
+    }
+
+    @Override
+    public void setChoiceMode(int mode) {
+        if(getRecyclerView() != null)
+            getRecyclerView().setChoiceMode(HsRecyclerView.CHOICE_MODE_MULTIPLE);
     }
 }
