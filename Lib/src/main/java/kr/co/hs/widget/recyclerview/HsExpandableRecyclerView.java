@@ -44,14 +44,14 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
     }
 
 
-    private void expandableItemClick(View view, int parentPosition, int childPosition){
+    private void expandableItemClick(ViewHolder viewHolder, View view, int parentPosition, int childPosition){
         if(this.mExpandableItemClickListener != null){
-            this.mExpandableItemClickListener.onItemClick(this, view, parentPosition, childPosition);
+            this.mExpandableItemClickListener.onItemClick(this, viewHolder, view, parentPosition, childPosition);
         }
     }
-    private boolean expandableItemLongClick(View view, int parentPosition, int childPosition){
+    private boolean expandableItemLongClick(ViewHolder viewHolder, View view, int parentPosition, int childPosition){
         if(this.mExpandableItemLongClickListener != null){
-            return this.mExpandableItemLongClickListener.onItemLongClick(this, view, parentPosition, childPosition);
+            return this.mExpandableItemLongClickListener.onItemLongClick(this, viewHolder, view, parentPosition, childPosition);
         }
         return false;
     }
@@ -59,10 +59,10 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
 
     public interface OnExpandableItemClickListener{
-        void onItemClick(HsExpandableRecyclerView adapterView, View itemView, int parentPosition, int childPosition);
+        void onItemClick(HsExpandableRecyclerView adapterView, ViewHolder viewHolder,  View itemView, int parentPosition, int childPosition);
     }
     public interface OnExpandableItemLongClickListener{
-        boolean onItemLongClick(HsExpandableRecyclerView adapterView, View itemView, int parentPosition, int childPosition);
+        boolean onItemLongClick(HsExpandableRecyclerView adapterView, ViewHolder viewHolder,  View itemView, int parentPosition, int childPosition);
     }
 
     @Override
@@ -154,7 +154,7 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
         @Override
         public void onClick(View view) {
-            getHsRecyclerView().expandableItemClick(getItemView(), getParentAdapterPosition(), -1);
+            getHsRecyclerView().expandableItemClick(this, getItemView(), getParentAdapterPosition(), -1);
             if(isWatchEvent){
                 if(mExpanded){
                     collapseView();
@@ -166,7 +166,7 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
         @Override
         public boolean onLongClick(View view) {
-            return getHsRecyclerView().expandableItemLongClick(getItemView(), getParentAdapterPosition(), -1);
+            return getHsRecyclerView().expandableItemLongClick(this, getItemView(), getParentAdapterPosition(), -1);
         }
 
         @UiThread
@@ -240,12 +240,12 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
         @Override
         public boolean onLongClick(View view) {
-            return getHsRecyclerView().expandableItemLongClick(getItemView(), getParentAdapterPosition(), getChildAdapterPosition());
+            return getHsRecyclerView().expandableItemLongClick(this, getItemView(), getParentAdapterPosition(), getChildAdapterPosition());
         }
 
         @Override
         public void onClick(View view) {
-            getHsRecyclerView().expandableItemClick(getItemView(), getParentAdapterPosition(), getChildAdapterPosition());
+            getHsRecyclerView().expandableItemClick(this, getItemView(), getParentAdapterPosition(), getChildAdapterPosition());
         }
     }
 
@@ -471,7 +471,7 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
         @Override
         @UiThread
-        public int getItemCount() {
+        public int getHsItemCount() {
             return mFlatItemList.size();
         }
 

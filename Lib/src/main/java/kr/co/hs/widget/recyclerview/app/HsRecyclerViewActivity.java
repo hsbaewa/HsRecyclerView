@@ -1,5 +1,6 @@
 package kr.co.hs.widget.recyclerview.app;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import kr.co.hs.app.HsActivity;
@@ -11,11 +12,9 @@ import kr.co.hs.widget.recyclerview.HsRecyclerView;
 public abstract class HsRecyclerViewActivity extends HsActivity implements IHsRecyclerViewContext, HsRecyclerView.OnItemClickListener, HsRecyclerView.OnItemLongClickListener {
 
     private HsRecyclerView mRecyclerView;
-    private HsRecyclerView.HsAdapter mAdapter;
-
 
     @Override
-    public void onItemClick(HsRecyclerView adapterView, View itemView, int position) {
+    public void onItemClick(HsRecyclerView adapterView, RecyclerView.ViewHolder viewHolder, View itemView, int position) {
         if(isMultiChoiceMode()){
             //멀티선택모드이다. 선택한 아이템을 체크해주자
             adapterView.setChecked(position, !adapterView.isChecked(position));
@@ -27,7 +26,7 @@ public abstract class HsRecyclerViewActivity extends HsActivity implements IHsRe
     }
 
     @Override
-    public boolean onItemLongClick(HsRecyclerView adapterView, View itemView, int position) {
+    public boolean onItemLongClick(HsRecyclerView adapterView, RecyclerView.ViewHolder viewHolder, View itemView, int position) {
         if(!isMultiChoiceMode()){
             //롱터치하여 멀티선택 모드로 변환 시키면서 선택된 아이템 체크함.
             adapterView.setChoiceMode(HsRecyclerView.CHOICE_MODE_MULTIPLE);

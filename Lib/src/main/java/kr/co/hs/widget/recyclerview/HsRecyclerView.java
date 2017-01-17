@@ -25,9 +25,14 @@ public class HsRecyclerView extends RecyclerView {
 
     private OnItemClickListener mItemClickListener;
     private OnItemLongClickListener mItemLongClickListener;
+    //선택된 아이템 갯수 변경 이벤트
+    private OnItemCheckedCountChangedListener mOnItemCheckedCountChangedListener;
 
     private int mSingleChoiceIndex = -1;
     private ArrayList<Integer> mChoiceIndex = null;
+
+    //현재 선택된 아이템 갯수
+    private int mCurrentCheckedItemCount = 0;
 
 
     public HsRecyclerView(Context context) {
@@ -51,8 +56,18 @@ public class HsRecyclerView extends RecyclerView {
                     mChoiceIndex.clear();
                     mChoiceIndex = null;
                 }
-                mSingleChoiceIndex = -1;
                 mChoiceIndex = new ArrayList<>();
+
+                //이벤트 발생 시키자
+                int tempCurrentCheckCount = mChoiceIndex.size();
+                if(mOnItemCheckedCountChangedListener != null){
+                    if(mCurrentCheckedItemCount != tempCurrentCheckCount)
+                        mOnItemCheckedCountChangedListener.onChangedCheckedItemCount(mCurrentCheckedItemCount, tempCurrentCheckCount);
+                }
+                mCurrentCheckedItemCount = tempCurrentCheckCount;
+
+                mSingleChoiceIndex = -1;
+
                 break;
             }
             case CHOICE_MODE_NONE:{
@@ -60,6 +75,14 @@ public class HsRecyclerView extends RecyclerView {
                     mChoiceIndex.clear();
                     mChoiceIndex = null;
                 }
+                //이벤트 발생 시키자
+                int tempCurrentCheckCount = 0;
+                if(mOnItemCheckedCountChangedListener != null){
+                    if(mCurrentCheckedItemCount != tempCurrentCheckCount)
+                        mOnItemCheckedCountChangedListener.onChangedCheckedItemCount(mCurrentCheckedItemCount, tempCurrentCheckCount);
+                }
+                mCurrentCheckedItemCount = tempCurrentCheckCount;
+
                 mSingleChoiceIndex = -1;
                 break;
             }
@@ -68,6 +91,14 @@ public class HsRecyclerView extends RecyclerView {
                     mChoiceIndex.clear();
                     mChoiceIndex = null;
                 }
+                //이벤트 발생 시키자
+                int tempCurrentCheckCount = 0;
+                if(mOnItemCheckedCountChangedListener != null){
+                    if(mCurrentCheckedItemCount != tempCurrentCheckCount)
+                        mOnItemCheckedCountChangedListener.onChangedCheckedItemCount(mCurrentCheckedItemCount, tempCurrentCheckCount);
+                }
+                mCurrentCheckedItemCount = tempCurrentCheckCount;
+
                 mSingleChoiceIndex = -1;
                 break;
             }
@@ -99,7 +130,7 @@ public class HsRecyclerView extends RecyclerView {
         }
         return false;
     }
-    public void setChecked(int position, boolean check){
+    private void setChecked(int position, boolean check, boolean isEvent){
         switch (getChoiceMode()){
             case CHOICE_MODE_NONE:{
 
@@ -120,10 +151,22 @@ public class HsRecyclerView extends RecyclerView {
                         if(isChecked(position))
                             mChoiceIndex.remove((Integer)position);
                     }
+                    if(isEvent){
+                        //갯수 체크하여 이벤트 발생
+                        int tempCurrentCheckCount = mChoiceIndex.size();
+                        if(mOnItemCheckedCountChangedListener != null){
+                            if(mCurrentCheckedItemCount != tempCurrentCheckCount)
+                                mOnItemCheckedCountChangedListener.onChangedCheckedItemCount(mCurrentCheckedItemCount, tempCurrentCheckCount);
+                        }
+                        mCurrentCheckedItemCount = tempCurrentCheckCount;
+                    }
                 }
                 break;
             }
         }
+    }
+    public void setChecked(int position, boolean check){
+        setChecked(position, check, true);
     }
     public boolean isCheckAll(){
         switch (getChoiceMode()){
@@ -155,9 +198,17 @@ public class HsRecyclerView extends RecyclerView {
                 HsAdapter adapter = (HsAdapter) getAdapter();
                 if(adapter != null){
                     for(int i=0;i<adapter.getItemCount();i++){
-                        setChecked(i, check);
+                        setChecked(i, check, false);
                     }
                 }
+
+                //갯수 체크하여 이벤트 발생
+                int tempCurrentCheckCount = mChoiceIndex.size();
+                if(mOnItemCheckedCountChangedListener != null){
+                    if(mCurrentCheckedItemCount != tempCurrentCheckCount)
+                        mOnItemCheckedCountChangedListener.onChangedCheckedItemCount(mCurrentCheckedItemCount, tempCurrentCheckCount);
+                }
+                mCurrentCheckedItemCount = tempCurrentCheckCount;
             }
             default:return;
         }
@@ -167,6 +218,10 @@ public class HsRecyclerView extends RecyclerView {
         return mChoiceIndex;
     }
 
+    public int getCheckedCount(){
+        return mCurrentCheckedItemCount;
+    }
+
     public void setOnItemClickListener(OnItemClickListener listener){
         this.mItemClickListener = listener;
     }
@@ -174,6 +229,9 @@ public class HsRecyclerView extends RecyclerView {
         this.mItemLongClickListener = listener;
     }
 
+    public void setOnItemCheckedCountChangedListener(OnItemCheckedCountChangedListener onItemCheckedCountChangedListener) {
+        mOnItemCheckedCountChangedListener = onItemCheckedCountChangedListener;
+    }
 
     @Override
     public void setAdapter(Adapter adapter) {
@@ -184,22 +242,32 @@ public class HsRecyclerView extends RecyclerView {
     }
 
 
-    private void itemClick(View view, int position){
+    private void itemClick(ViewHolder viewHolder, View view, int position){
         if(this.mItemClickListener != null){
-            this.mItemClickListener.onItemClick(this, view, position);
+            this.mItemClickListener.onItemClick(this, viewHolder, view, position);
         }
     }
-    private boolean itemLongClick(View view, int position){
+    private boolean itemLongClick(ViewHolder viewHolder, View view, int position){
         if(this.mItemLongClickListener != null){
-            return this.mItemLongClickListener.onItemLongClick(this, view, position);
+            return this.mItemLongClickListener.onItemLongClick(this, viewHolder, view, position);
         }
         return false;
     }
 
 
+    public interface OnItemCountChangedListener{
+        void onChangedItemCount(int beforeCount, int currentCount);
+    }
+
+    public interface OnItemCheckedCountChangedListener{
+        void onChangedCheckedItemCount(int beforeCount, int currentCount);
+    }
+
 
     public static abstract class HsAdapter<Holder extends HsViewHolder> extends RecyclerView.Adapter{
         private HsRecyclerView mRecyclerView = null;
+        private OnItemCountChangedListener mOnItemCountChangedListener;
+        private int beforeCount = -1;
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -211,6 +279,7 @@ public class HsRecyclerView extends RecyclerView {
             final Holder hsViewHolder = (Holder) holder;
             if(hsViewHolder != null){
                 hsViewHolder.setClickEventListener(mRecyclerView);
+                hsViewHolder.setItemObject(getItem(position));
             }
             boolean isChecked = false;
             if(mRecyclerView != null){
@@ -229,8 +298,33 @@ public class HsRecyclerView extends RecyclerView {
             return (nRecyclerViewChoiceMode == CHOICE_MODE_MULTIPLE || nRecyclerViewChoiceMode == CHOICE_MODE_MULTIPLE_MODAL);
         }
 
+        protected Object getItem(int position){
+            return null;
+        }
+
+        protected Context getContext(){
+            if(getRecyclerView() != null)
+                return getRecyclerView().getContext();
+            else
+                return null;
+        }
+
+        @Override
+        public int getItemCount() {
+            int currentCount = getHsItemCount();
+            if(this.mOnItemCountChangedListener != null && beforeCount != currentCount)
+                this.mOnItemCountChangedListener.onChangedItemCount(beforeCount, currentCount);
+            beforeCount = currentCount;
+            return currentCount;
+        }
+
+        public void setOnItemCountChangedListener(OnItemCountChangedListener onItemCountChangedListener) {
+            this.mOnItemCountChangedListener = onItemCountChangedListener;
+        }
+
         public abstract Holder onCreateHsViewHolder(ViewGroup parent, int viewType);
         public abstract void onBindHsViewHolder(Holder holder, int position, boolean isChecked);
+        public abstract int getHsItemCount();
     }
 
 
@@ -265,8 +359,9 @@ public class HsRecyclerView extends RecyclerView {
                 tempCursor.close();
             }
         }
+
         @Override
-        public int getItemCount() {
+        public int getHsItemCount() {
             if(mCursor == null || mCursor.isClosed())
                 return 0;
             return mCursor.getCount();
@@ -292,6 +387,7 @@ public class HsRecyclerView extends RecyclerView {
 
     public static abstract class HsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         private HsRecyclerView mHsRecyclerView;
+        private Object mItemObject;
 
         public HsViewHolder(View itemView) {
             super(itemView);
@@ -319,7 +415,7 @@ public class HsRecyclerView extends RecyclerView {
         public void onClick(View view) {
             int pos = getAdapterPosition();
             if(mHsRecyclerView != null){
-                mHsRecyclerView.itemClick(getItemView(), pos);
+                mHsRecyclerView.itemClick(this, getItemView(), pos);
             }
         }
 
@@ -327,16 +423,45 @@ public class HsRecyclerView extends RecyclerView {
         public boolean onLongClick(View view) {
             int pos = getAdapterPosition();
             if(mHsRecyclerView != null)
-                return mHsRecyclerView.itemLongClick(getItemView(), pos);
+                return mHsRecyclerView.itemLongClick(this, getItemView(), pos);
             return false;
+        }
+
+        void setItemObject(Object itemObject){
+            this.mItemObject = itemObject;
+        }
+
+        protected Object getItemObject(){
+            return this.mItemObject;
+        }
+
+        protected Context getContext(){
+            if(getHsRecyclerView() != null)
+                return getHsRecyclerView().getContext();
+            else
+                return null;
+        }
+
+        protected HsAdapter getHsAdapter(){
+            if(getHsRecyclerView() != null)
+                return (HsAdapter) getHsRecyclerView().getAdapter();
+            else
+                return null;
+        }
+
+        protected Object getItem(){
+            if(getHsAdapter() != null)
+                return getHsAdapter().getItem(getAdapterPosition());
+            else
+                return null;
         }
     }
 
 
     public interface OnItemClickListener{
-        void onItemClick(HsRecyclerView adapterView, View itemView, int position);
+        void onItemClick(HsRecyclerView adapterView, ViewHolder viewHolder, View itemView, int position);
     }
     public interface OnItemLongClickListener{
-        boolean onItemLongClick(HsRecyclerView adapterView, View itemView, int position);
+        boolean onItemLongClick(HsRecyclerView adapterView, ViewHolder viewHolder, View itemView, int position);
     }
 }
