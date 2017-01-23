@@ -358,8 +358,10 @@ public class HsRecyclerView extends RecyclerView {
         }
 
         public Cursor getCursor(int position){
-            if(mCursor == null && mHsRecyclerCursorAdapterListener != null)
-                mCursor = mHsRecyclerCursorAdapterListener.onLoadCursor(getRecyclerView(), this);
+            if(mCursor == null || mCursor.isClosed()){
+                if(mHsRecyclerCursorAdapterListener != null)
+                    mCursor = mHsRecyclerCursorAdapterListener.onLoadCursor(getRecyclerView(), this);
+            }
 
             if(mCursor != null && position >= 0)
                 mCursor.moveToPosition(position);
