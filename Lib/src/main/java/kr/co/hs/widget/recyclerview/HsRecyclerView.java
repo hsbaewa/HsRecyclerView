@@ -32,6 +32,8 @@ public class HsRecyclerView extends RecyclerView {
     private OnItemLongClickListener mItemLongClickListener;
     //선택된 아이템 갯수 변경 이벤트
     private OnItemCheckedCountChangedListener mOnItemCheckedCountChangedListener;
+    //전체 아이템 갯수 변경 이벤트
+    private OnItemCountChangedListener mOnItemCountChangedListener;
 
     private int mSingleChoiceIndex = -1;
     private ArrayList<Integer> mChoiceIndex = null;
@@ -238,6 +240,10 @@ public class HsRecyclerView extends RecyclerView {
         mOnItemCheckedCountChangedListener = onItemCheckedCountChangedListener;
     }
 
+    public void setOnItemCountChangedListener(OnItemCountChangedListener onItemCountChangedListener) {
+        mOnItemCountChangedListener = onItemCountChangedListener;
+    }
+
     @Override
     public void setAdapter(Adapter adapter) {
         if(adapter instanceof HsAdapter){
@@ -258,6 +264,11 @@ public class HsRecyclerView extends RecyclerView {
         }
         return false;
     }
+    private void itemCountChange(int before, int after){
+        if(this.mOnItemCountChangedListener != null){
+            this.mOnItemCountChangedListener.onChangedItemCount(before, after);
+        }
+    }
 
 
     public interface OnItemCountChangedListener{
@@ -271,7 +282,7 @@ public class HsRecyclerView extends RecyclerView {
 
     public static abstract class HsAdapter<Holder extends HsViewHolder> extends RecyclerView.Adapter{
         private HsRecyclerView mRecyclerView = null;
-        private OnItemCountChangedListener mOnItemCountChangedListener;
+//        private OnItemCountChangedListener mOnItemCountChangedListener;
         private int beforeCount = -1;
 
         @Override
@@ -316,14 +327,13 @@ public class HsRecyclerView extends RecyclerView {
         @Override
         public int getItemCount() {
             int currentCount = getHsItemCount();
-            if(this.mOnItemCountChangedListener != null && beforeCount != currentCount)
-                this.mOnItemCountChangedListener.onChangedItemCount(beforeCount, currentCount);
+            if(beforeCount != currentCount){
+                getRecyclerView().itemCountChange(beforeCount, currentCount);
+            }
+//            if(this.mOnItemCountChangedListener != null && beforeCount != currentCount)
+//                this.mOnItemCountChangedListener.onChangedItemCount(beforeCount, currentCount);
             beforeCount = currentCount;
             return currentCount;
-        }
-
-        public void setOnItemCountChangedListener(OnItemCountChangedListener onItemCountChangedListener) {
-            this.mOnItemCountChangedListener = onItemCountChangedListener;
         }
 
         public abstract Holder onCreateHsViewHolder(ViewGroup parent, int viewType);
