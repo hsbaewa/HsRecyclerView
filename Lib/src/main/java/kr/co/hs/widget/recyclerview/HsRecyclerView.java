@@ -5,11 +5,16 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+
+import kr.co.hs.app.HsActivity;
+import kr.co.hs.app.OnActivityLifeCycleListener;
 
 
 /**
@@ -279,7 +284,6 @@ public class HsRecyclerView extends RecyclerView {
             final Holder hsViewHolder = (Holder) holder;
             if(hsViewHolder != null){
                 hsViewHolder.setClickEventListener(mRecyclerView);
-                hsViewHolder.setItemObject(getItem(position));
             }
             boolean isChecked = false;
             if(mRecyclerView != null){
@@ -327,6 +331,124 @@ public class HsRecyclerView extends RecyclerView {
         public abstract int getHsItemCount();
     }
 
+
+    public interface HsRecyclerCursorAdapterListener<Adapter extends HsRecyclerCursorAdapter>{
+        Cursor onLoadCursor(HsRecyclerView hsRecyclerView, Adapter adapter);
+        void onReleaseCursor(HsRecyclerView hsRecyclerView, Adapter adapter);
+    }
+
+    public static abstract class HsRecyclerCursorAdapter<Holder extends HsViewHolder> extends HsAdapter<Holder> implements OnActivityLifeCycleListener{
+        private Cursor mCursor;
+        private HsRecyclerCursorAdapterListener mHsRecyclerCursorAdapterListener;
+
+        public HsRecyclerCursorAdapter(HsRecyclerCursorAdapterListener hsRecyclerCursorAdapterListener) {
+            mHsRecyclerCursorAdapterListener = hsRecyclerCursorAdapterListener;
+        }
+
+        @Override
+        public void onBindHsViewHolder(Holder holder, int position, boolean isChecked) {
+            if(getCursor() != null && !getCursor().isClosed()){
+                getCursor().moveToPosition(position);
+            }
+            onBindHsViewHolder(holder, position, isChecked, getCursor());
+        }
+
+        public Cursor getCursor(){
+            return getCursor(-1);
+        }
+
+        public Cursor getCursor(int position){
+            if(mCursor == null && mHsRecyclerCursorAdapterListener != null)
+                mCursor = mHsRecyclerCursorAdapterListener.onLoadCursor(getRecyclerView(), this);
+
+            if(mCursor != null && position >= 0)
+                mCursor.moveToPosition(position);
+
+            return mCursor;
+        }
+
+        public Cursor swapCursor(Cursor cursor){
+            Cursor tempCursor = mCursor;
+            mCursor = cursor;
+            if(mCursor == null && mHsRecyclerCursorAdapterListener!=null)
+                mCursor = mHsRecyclerCursorAdapterListener.onLoadCursor(getRecyclerView(), this);
+
+            if(tempCursor != null && !tempCursor.isClosed())
+                tempCursor.close();
+
+            return mCursor;
+        }
+
+        public Cursor swapCursor(){
+            return swapCursor(null);
+        }
+
+        public void closeCursor(){
+            if(getCursor() != null && !getCursor().isClosed()){
+                getCursor().close();
+                mCursor = null;
+            }
+            if(mHsRecyclerCursorAdapterListener != null)
+                mHsRecyclerCursorAdapterListener.onReleaseCursor(getRecyclerView(), this);
+        }
+
+        @Override
+        public int getHsItemCount() {
+            if(getCursor() == null || getCursor().isClosed())
+                return 0;
+            else
+                return getCursor().getCount();
+        }
+
+        @Override
+        protected void setRecyclerView(HsRecyclerView view) {
+            super.setRecyclerView(view);
+            if(view != null){
+                Context context = view.getContext();
+                if(context instanceof HsActivity){
+                    HsActivity activity = (HsActivity) context;
+                    activity.setOnActivityLifeCycleListener(this);
+                }
+            }
+        }
+
+        @Override
+        protected Object getItem(int position) {
+            return getCursor(position);
+        }
+
+        @Override
+        public void onActivityCreateStatus() {
+
+        }
+
+        @Override
+        public void onActivityStartStatus() {
+
+        }
+
+        @Override
+        public void onActivityResumeStatus() {
+            swapCursor();
+        }
+
+        @Override
+        public void onActivityPauseStatus() {
+            closeCursor();
+        }
+
+        @Override
+        public void onActivityStopStatus() {
+
+        }
+
+        @Override
+        public void onActivityDestryStatus() {
+
+        }
+
+        public abstract void onBindHsViewHolder(Holder holder, int position, boolean isChecked, Cursor cursor);
+    }
 
     public static abstract class HsCursorAdapter<Holder extends HsViewHolder> extends HsAdapter{
         private Cursor mCursor = null;
@@ -385,9 +507,12 @@ public class HsRecyclerView extends RecyclerView {
     }
 
 
-    public static abstract class HsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public static abstract class HsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, Toolbar.OnMenuItemClickListener {
         private HsRecyclerView mHsRecyclerView;
         private Object mItemObject;
+
+        private Toolbar mToolbar;
+        private OnHolderMenuItemListener mOnHolderMenuItemListener;
 
         public HsViewHolder(View itemView) {
             super(itemView);
@@ -427,14 +552,6 @@ public class HsRecyclerView extends RecyclerView {
             return false;
         }
 
-        void setItemObject(Object itemObject){
-            this.mItemObject = itemObject;
-        }
-
-        protected Object getItemObject(){
-            return this.mItemObject;
-        }
-
         protected Context getContext(){
             if(getHsRecyclerView() != null)
                 return getHsRecyclerView().getContext();
@@ -455,6 +572,44 @@ public class HsRecyclerView extends RecyclerView {
             else
                 return null;
         }
+
+        protected void setToolbar(Toolbar toolbar, OnHolderMenuItemListener onHolderMenuItemListener){
+            this.mOnHolderMenuItemListener = onHolderMenuItemListener;
+            this.mToolbar = toolbar;
+            this.mToolbar.setOnMenuItemClickListener(this);
+        }
+
+        public Toolbar getToolbar() {
+            return mToolbar;
+        }
+
+        public String getString(int res){
+            if(getContext() != null)
+                return getContext().getString(res);
+            else
+                return null;
+        }
+
+        public String getString(int res, Object... object){
+            if(getContext() != null)
+                return getContext().getString(res, object);
+            else
+                return null;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            int idx = getAdapterPosition();
+            if(this.mOnHolderMenuItemListener != null)
+                return this.mOnHolderMenuItemListener.onOptionsItemSelected(item, idx);
+            else
+                return false;
+        }
+    }
+
+
+    public interface OnHolderMenuItemListener{
+        boolean onOptionsItemSelected(MenuItem item, int idx);
     }
 
 
