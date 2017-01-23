@@ -74,7 +74,7 @@ public class SampleActivity extends HsRecyclerViewActivity {
         }
 
         @Override
-        public int getItemCount() {
+        public int getHsItemCount() {
             return 10;
         }
 
