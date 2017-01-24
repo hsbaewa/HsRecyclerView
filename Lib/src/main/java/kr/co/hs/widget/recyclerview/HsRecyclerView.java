@@ -253,18 +253,18 @@ public class HsRecyclerView extends RecyclerView {
     }
 
 
-    private void itemClick(ViewHolder viewHolder, View view, int position){
+    protected void itemClick(ViewHolder viewHolder, View view, int position){
         if(this.mItemClickListener != null){
             this.mItemClickListener.onItemClick(this, viewHolder, view, position);
         }
     }
-    private boolean itemLongClick(ViewHolder viewHolder, View view, int position){
+    protected boolean itemLongClick(ViewHolder viewHolder, View view, int position){
         if(this.mItemLongClickListener != null){
             return this.mItemLongClickListener.onItemLongClick(this, viewHolder, view, position);
         }
         return false;
     }
-    private void itemCountChange(int before, int after){
+    protected void itemCountChange(int before, int after){
         if(this.mOnItemCountChangedListener != null){
             this.mOnItemCountChangedListener.onChangedItemCount(before, after);
         }
