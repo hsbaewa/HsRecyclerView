@@ -336,6 +336,22 @@ public class HsRecyclerView extends RecyclerView {
             return currentCount;
         }
 
+        public String getString(int res){
+            Context context = getContext();
+            if(context == null)
+                return context.getString(res);
+            else
+                return null;
+        }
+
+        public String getString(int res, Object... object){
+            Context context = getContext();
+            if(context == null)
+                return context.getString(res, object);
+            else
+                return null;
+        }
+
         public abstract Holder onCreateHsViewHolder(ViewGroup parent, int viewType);
         public abstract void onBindHsViewHolder(Holder holder, int position, boolean isChecked);
         public abstract int getHsItemCount();
