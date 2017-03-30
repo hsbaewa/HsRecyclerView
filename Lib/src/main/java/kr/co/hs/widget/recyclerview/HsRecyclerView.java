@@ -601,10 +601,14 @@ public class HsRecyclerView extends RecyclerView {
                 return null;
         }
 
-        protected void setToolbar(Toolbar toolbar, OnHolderMenuItemListener onHolderMenuItemListener){
-            this.mOnHolderMenuItemListener = onHolderMenuItemListener;
+        protected void setToolbar(Toolbar toolbar){
             this.mToolbar = toolbar;
             this.mToolbar.setOnMenuItemClickListener(this);
+        }
+
+        protected void setToolbar(Toolbar toolbar, OnHolderMenuItemListener onHolderMenuItemListener){
+            this.mOnHolderMenuItemListener = onHolderMenuItemListener;
+            setToolbar(toolbar);
         }
 
         public Toolbar getToolbar() {
@@ -639,6 +643,7 @@ public class HsRecyclerView extends RecyclerView {
     public interface OnHolderMenuItemListener{
         boolean onOptionsItemSelected(MenuItem item, int idx);
     }
+
 
 
     public interface OnItemClickListener{

@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -195,10 +197,11 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
 
 
-    public static class ChildViewHolder<C> extends HsViewHolder {
+    public static class ChildViewHolder<C> extends HsViewHolder implements Toolbar.OnMenuItemClickListener{
         C mChild;
         HsExpandableAdapter mExpandableAdapter;
         private HsExpandableRecyclerView mHsRecyclerView;
+        private OnExpandableHolderMenuItemListener mOnExpandableHolderMenuItemListener;
 
         @Override
         protected HsExpandableRecyclerView getHsRecyclerView() {
@@ -207,6 +210,11 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
         void setHsRecyclerView(HsExpandableRecyclerView recyclerView){
             this.mHsRecyclerView = recyclerView;
+        }
+
+        protected void setToolbar(Toolbar toolbar, OnExpandableHolderMenuItemListener onExpandableHolderMenuItemListener){
+            this.mOnExpandableHolderMenuItemListener = onExpandableHolderMenuItemListener;
+            setToolbar(toolbar);
         }
 
         public ChildViewHolder(@NonNull View itemView) {
@@ -246,6 +254,13 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
         @Override
         public void onClick(View view) {
             getHsRecyclerView().expandableItemClick(this, getItemView(), getParentAdapterPosition(), getChildAdapterPosition());
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            if(mOnExpandableHolderMenuItemListener != null)
+                return mOnExpandableHolderMenuItemListener.onOptionsItemSelected(item, getParentAdapterPosition(), getChildAdapterPosition());
+            return super.onMenuItemClick(item);
         }
     }
 
@@ -1571,5 +1586,10 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
             return INVALID_FLAT_POSITION;
         }
+    }
+
+
+    public interface OnExpandableHolderMenuItemListener{
+        boolean onOptionsItemSelected(MenuItem item, int parentIdx, int childIdx);
     }
 }
