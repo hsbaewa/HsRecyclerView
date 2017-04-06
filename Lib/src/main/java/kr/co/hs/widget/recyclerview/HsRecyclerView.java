@@ -2,6 +2,8 @@ package kr.co.hs.widget.recyclerview;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -41,6 +43,7 @@ public class HsRecyclerView extends RecyclerView {
     //현재 선택된 아이템 갯수
     private int mCurrentCheckedItemCount = 0;
 
+    private HsDividerItemDecoration mHsDividerItemDecoration;
 
     public HsRecyclerView(Context context) {
         super(context);
@@ -252,6 +255,15 @@ public class HsRecyclerView extends RecyclerView {
         super.setAdapter(adapter);
     }
 
+    public void setDivider(Drawable drawable){
+        //기존 divider 제거
+        if(mHsDividerItemDecoration != null){
+            removeItemDecoration(mHsDividerItemDecoration);
+            mHsDividerItemDecoration = null;
+        }
+        mHsDividerItemDecoration = new HsDividerItemDecoration(drawable);
+        addItemDecoration(mHsDividerItemDecoration);
+    }
 
     protected void itemClick(ViewHolder viewHolder, View view, int position){
         if(this.mItemClickListener != null){
@@ -280,7 +292,7 @@ public class HsRecyclerView extends RecyclerView {
     }
 
 
-    public static abstract class HsAdapter<Holder extends HsViewHolder> extends RecyclerView.Adapter{
+    public static abstract class HsAdapter<Holder extends HsViewHolder> extends Adapter{
         private HsRecyclerView mRecyclerView = null;
 //        private OnItemCountChangedListener mOnItemCountChangedListener;
         private int beforeCount = -1;
@@ -535,7 +547,7 @@ public class HsRecyclerView extends RecyclerView {
     }
 
 
-    public static abstract class HsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, Toolbar.OnMenuItemClickListener {
+    public static abstract class HsViewHolder extends ViewHolder implements View.OnClickListener, View.OnLongClickListener, Toolbar.OnMenuItemClickListener {
         private HsRecyclerView mHsRecyclerView;
         private Object mItemObject;
 
@@ -644,6 +656,35 @@ public class HsRecyclerView extends RecyclerView {
         boolean onOptionsItemSelected(MenuItem item, int idx);
     }
 
+
+
+    public static class HsItemDecoration extends ItemDecoration{
+
+    }
+
+    public static class HsDividerItemDecoration extends HsItemDecoration{
+        private Drawable mDrawable;
+
+        public HsDividerItemDecoration(Drawable divider) {
+            this.mDrawable = divider;
+        }
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, State state) {
+            int left = parent.getPaddingLeft();
+            int right = parent.getWidth() - parent.getPaddingRight();
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = parent.getChildAt(i);
+                LayoutParams params = (LayoutParams) child.getLayoutParams();
+                int top = child.getBottom() + params.bottomMargin;
+                int bottom = top + mDrawable.getIntrinsicHeight();
+                mDrawable.setBounds(left, top, right, bottom);
+                mDrawable.draw(c);
+            }
+        }
+    }
 
 
     public interface OnItemClickListener{
