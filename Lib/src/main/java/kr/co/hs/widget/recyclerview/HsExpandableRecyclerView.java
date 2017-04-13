@@ -103,6 +103,7 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
         private HsExpandableRecyclerView mHsRecyclerView;
         HsExpandableAdapter mExpandableAdapter;
         private boolean isWatchEvent = false;
+        private OnExpandableHolderMenuItemListener mOnExpandableHolderMenuItemListener;
 
         @Override
         protected HsExpandableRecyclerView getHsRecyclerView() {
@@ -111,6 +112,11 @@ public class HsExpandableRecyclerView extends HsRecyclerView {
 
         void setHsRecyclerView(HsExpandableRecyclerView recyclerView){
             this.mHsRecyclerView = recyclerView;
+        }
+
+        protected void setToolbar(Toolbar toolbar, OnExpandableHolderMenuItemListener onExpandableHolderMenuItemListener){
+            this.mOnExpandableHolderMenuItemListener = onExpandableHolderMenuItemListener;
+            setToolbar(toolbar);
         }
 
         @UiThread
