@@ -294,7 +294,6 @@ public class HsRecyclerView extends RecyclerView {
 
     public static abstract class HsAdapter<Holder extends HsViewHolder> extends Adapter{
         private HsRecyclerView mRecyclerView = null;
-//        private OnItemCountChangedListener mOnItemCountChangedListener;
         private int beforeCount = -1;
 
         @Override
@@ -342,8 +341,6 @@ public class HsRecyclerView extends RecyclerView {
             if(beforeCount != currentCount){
                 getRecyclerView().itemCountChange(beforeCount, currentCount);
             }
-//            if(this.mOnItemCountChangedListener != null && beforeCount != currentCount)
-//                this.mOnItemCountChangedListener.onChangedItemCount(beforeCount, currentCount);
             beforeCount = currentCount;
             return currentCount;
         }
@@ -490,6 +487,7 @@ public class HsRecyclerView extends RecyclerView {
         public abstract void onBindHsViewHolder(Holder holder, int position, boolean isChecked, Cursor cursor);
     }
 
+    @Deprecated
     public static abstract class HsCursorAdapter<Holder extends HsViewHolder> extends HsAdapter{
         private Cursor mCursor = null;
 
