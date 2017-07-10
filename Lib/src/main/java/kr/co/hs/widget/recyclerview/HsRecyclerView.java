@@ -347,7 +347,7 @@ public class HsRecyclerView extends RecyclerView {
 
         public String getString(int res){
             Context context = getContext();
-            if(context == null)
+            if(context != null)
                 return context.getString(res);
             else
                 return null;
@@ -355,7 +355,7 @@ public class HsRecyclerView extends RecyclerView {
 
         public String getString(int res, Object... object){
             Context context = getContext();
-            if(context == null)
+            if(context != null)
                 return context.getString(res, object);
             else
                 return null;
