@@ -6,15 +6,14 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import java.util.ArrayList;
-
 import kr.co.hs.app.HsActivity;
 import kr.co.hs.app.OnActivityLifeCycleListener;
 
@@ -36,6 +35,13 @@ public class HsRecyclerView extends RecyclerView {
     private OnItemCheckedCountChangedListener mOnItemCheckedCountChangedListener;
     //전체 아이템 갯수 변경 이벤트
     private OnItemCountChangedListener mOnItemCountChangedListener;
+    //스크롤하면서 아이템 보여지는게 바뀌는 이벤트
+    private OnItemVisibleStateChangedListener mOnItemVisibleStateChangedListener;
+    private HsOnScrollListener mHsOnScrollListener;
+    //처음 아이템이 보이는경우 이벤트
+    private OnFirstItemVisibleListener mOnFirstItemVisibleListener;
+    //마지막 아이템이 보이는경우 이벤트
+    private OnLastItemVisibleListener mOnLastItemVisibleListener;
 
     private int mSingleChoiceIndex = -1;
     private ArrayList<Integer> mChoiceIndex = null;
@@ -685,10 +691,86 @@ public class HsRecyclerView extends RecyclerView {
     }
 
 
+
+    class HsOnScrollListener extends OnScrollListener{
+        int mLastFirstPosition = -1;
+        int mLastEndPosition = -1;
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            if(getLayoutManager() instanceof LinearLayoutManager){
+                boolean isChanged = false;
+                int firstPos = ((LinearLayoutManager) getLayoutManager()).findFirstVisibleItemPosition();
+                int lastPos = ((LinearLayoutManager) getLayoutManager()).findLastVisibleItemPosition();
+
+                if(mLastFirstPosition != firstPos){
+                    mLastFirstPosition = firstPos;
+                    isChanged = true;
+                    if(mOnFirstItemVisibleListener != null && mLastFirstPosition == 0)
+                        mOnFirstItemVisibleListener.onFirstItemVisible();
+                }
+                if(mLastEndPosition != lastPos){
+                    mLastEndPosition = lastPos;
+                    isChanged = true;
+                    if(getAdapter() != null){
+                        int count = getAdapter().getItemCount();
+                        if(mOnLastItemVisibleListener != null && mLastEndPosition == (count-1))
+                            mOnLastItemVisibleListener.onLastItemVisible();
+
+                    }
+                }
+
+                if(mOnItemVisibleStateChangedListener != null && isChanged){
+                    mOnItemVisibleStateChangedListener.onVisibleStateChanged(mLastFirstPosition, mLastEndPosition);
+                }
+            }
+        }
+    }
+
+    public void setOnItemVisibleStateChangedListener(OnItemVisibleStateChangedListener listener){
+        if(mHsOnScrollListener == null && listener != null){
+            mHsOnScrollListener = new HsOnScrollListener();
+            addOnScrollListener(mHsOnScrollListener);
+        }
+        this.mOnItemVisibleStateChangedListener = listener;
+    }
+
+    public void setOnFirstItemVisibleListener(OnFirstItemVisibleListener listener){
+        if(mHsOnScrollListener == null && listener != null){
+            mHsOnScrollListener = new HsOnScrollListener();
+            addOnScrollListener(mHsOnScrollListener);
+        }
+        this.mOnFirstItemVisibleListener = listener;
+    }
+
+    public void setOnLastItemVisibleListener(OnLastItemVisibleListener listener){
+        if(mHsOnScrollListener == null && listener != null){
+            mHsOnScrollListener = new HsOnScrollListener();
+            addOnScrollListener(mHsOnScrollListener);
+        }
+        this.mOnLastItemVisibleListener = listener;
+    }
+
+
     public interface OnItemClickListener{
         void onItemClick(HsRecyclerView adapterView, ViewHolder viewHolder, View itemView, int position);
     }
     public interface OnItemLongClickListener{
         boolean onItemLongClick(HsRecyclerView adapterView, ViewHolder viewHolder, View itemView, int position);
+    }
+    public interface OnItemVisibleStateChangedListener{
+        void onVisibleStateChanged(int topPosition, int bottomPosition);
+    }
+    public interface OnFirstItemVisibleListener{
+        void onFirstItemVisible();
+    }
+    public interface OnLastItemVisibleListener{
+        void onLastItemVisible();
     }
 }

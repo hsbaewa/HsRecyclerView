@@ -9,17 +9,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
+import kr.co.hs.util.Logger;
 import kr.co.hs.widget.recyclerview.HsRecyclerView;
 import kr.co.hs.widget.recyclerview.app.HsRecyclerViewActivity;
 
 /**
  * Created by Bae on 2016-12-30.
  */
-public class SampleActivity extends HsRecyclerViewActivity {
+public class SampleActivity extends HsRecyclerViewActivity implements
+        HsRecyclerView.OnItemVisibleStateChangedListener,
+        HsRecyclerView.OnFirstItemVisibleListener,
+        HsRecyclerView.OnLastItemVisibleListener
+{
 
-//    HsRecyclerView mHsRecyclerView;
-//    SampleAdapter mAdapter;
 
 
     @Override
@@ -32,6 +34,10 @@ public class SampleActivity extends HsRecyclerViewActivity {
         temp.setLayoutManager(llm);
 
         temp.setAdapter(new SampleAdapter());
+
+//        temp.setOnItemVisibleStateChangedListener(this);
+//        temp.setOnFirstItemVisibleListener(this);
+//        temp.setOnLastItemVisibleListener(this);
 
         setRecyclerView(temp);
 
@@ -49,7 +55,20 @@ public class SampleActivity extends HsRecyclerViewActivity {
         return false;
     }
 
+    @Override
+    public void onVisibleStateChanged(int topPosition, int bottomPosition) {
+        Logger.d("onVisibleStateChanged", String.format("topPos : %d, bottomPos : %d", topPosition, bottomPosition));
+    }
 
+    @Override
+    public void onFirstItemVisible() {
+        Logger.d("onVisibleStateChanged", "onFirstItemVisible");
+    }
+
+    @Override
+    public void onLastItemVisible() {
+        Logger.d("onVisibleStateChanged", "onLastItemVisible");
+    }
 
 
     class SampleAdapter extends HsRecyclerView.HsAdapter<SampleAdapter.SampleHolder>{
@@ -75,7 +94,7 @@ public class SampleActivity extends HsRecyclerViewActivity {
 
         @Override
         public int getHsItemCount() {
-            return 10;
+            return 100;
         }
 
         class SampleHolder extends HsRecyclerView.HsViewHolder{
