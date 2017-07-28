@@ -36,8 +36,8 @@ public class SampleActivity extends HsRecyclerViewActivity implements
         temp.setAdapter(new SampleAdapter());
 
 //        temp.setOnItemVisibleStateChangedListener(this);
-//        temp.setOnFirstItemVisibleListener(this);
-//        temp.setOnLastItemVisibleListener(this);
+        temp.setOnFirstItemVisibleListener(this);
+        temp.setOnLastItemVisibleListener(this);
 
         setRecyclerView(temp);
 
@@ -61,13 +61,13 @@ public class SampleActivity extends HsRecyclerViewActivity implements
     }
 
     @Override
-    public void onFirstItemVisible() {
-        Logger.d("onVisibleStateChanged", "onFirstItemVisible");
+    public void onFirstItemVisible(boolean visible) {
+        Logger.d("onVisibleStateChanged", String.format("onFirstItemVisible : %b", visible));
     }
 
     @Override
-    public void onLastItemVisible() {
-        Logger.d("onVisibleStateChanged", "onLastItemVisible");
+    public void onLastItemVisible(boolean visible) {
+        Logger.d("onVisibleStateChanged", String.format("onLastItemVisible : %b", visible));
     }
 
 

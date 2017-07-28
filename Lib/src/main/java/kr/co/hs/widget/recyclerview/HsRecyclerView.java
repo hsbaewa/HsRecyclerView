@@ -694,7 +694,9 @@ public class HsRecyclerView extends RecyclerView {
 
     class HsOnScrollListener extends OnScrollListener{
         int mLastFirstPosition = -1;
+        boolean isLastFirstVisibleState = false;
         int mLastEndPosition = -1;
+        boolean isLastEndVisibleState = false;
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -712,20 +714,37 @@ public class HsRecyclerView extends RecyclerView {
                 if(mLastFirstPosition != firstPos){
                     mLastFirstPosition = firstPos;
                     isChanged = true;
-                    if(mOnFirstItemVisibleListener != null && mLastFirstPosition == 0)
-                        mOnFirstItemVisibleListener.onFirstItemVisible();
+                    if(mOnFirstItemVisibleListener != null){
+                        boolean isFirstVisible;
+                        if(mLastFirstPosition == 0)
+                            isFirstVisible = true;
+                        else
+                            isFirstVisible = false;
+                        if(isLastFirstVisibleState != isFirstVisible){
+                            isLastFirstVisibleState = isFirstVisible;
+                            mOnFirstItemVisibleListener.onFirstItemVisible(isLastFirstVisibleState);
+                        }
+                    }
                 }
                 if(mLastEndPosition != lastPos){
                     mLastEndPosition = lastPos;
                     isChanged = true;
                     if(getAdapter() != null){
                         int count = getAdapter().getItemCount();
-                        if(mOnLastItemVisibleListener != null && mLastEndPosition == (count-1))
-                            mOnLastItemVisibleListener.onLastItemVisible();
+                        if(mOnLastItemVisibleListener != null){
+                            boolean isEndVisible;
+                            if(mLastEndPosition == (count - 1))
+                                isEndVisible = true;
+                            else
+                                isEndVisible = false;
 
+                            if(isLastEndVisibleState != isEndVisible){
+                                isLastEndVisibleState = isEndVisible;
+                                mOnLastItemVisibleListener.onLastItemVisible(isLastEndVisibleState);
+                            }
+                        }
                     }
                 }
-
                 if(mOnItemVisibleStateChangedListener != null && isChanged){
                     mOnItemVisibleStateChangedListener.onVisibleStateChanged(mLastFirstPosition, mLastEndPosition);
                 }
@@ -768,9 +787,9 @@ public class HsRecyclerView extends RecyclerView {
         void onVisibleStateChanged(int topPosition, int bottomPosition);
     }
     public interface OnFirstItemVisibleListener{
-        void onFirstItemVisible();
+        void onFirstItemVisible(boolean visible);
     }
     public interface OnLastItemVisibleListener{
-        void onLastItemVisible();
+        void onLastItemVisible(boolean visible);
     }
 }
