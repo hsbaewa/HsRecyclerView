@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +13,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import kr.co.hs.app.HsActivity;
 import kr.co.hs.app.OnActivityLifeCycleListener;
 
@@ -297,27 +299,25 @@ public class HsRecyclerView extends RecyclerView {
         void onChangedCheckedItemCount(int beforeCount, int currentCount);
     }
 
-
-    public static abstract class HsAdapter<Holder extends HsViewHolder> extends Adapter{
+    public static abstract class HsAdapter<Holder extends HsViewHolder> extends Adapter<Holder>{
         private HsRecyclerView mRecyclerView = null;
         private int beforeCount = -1;
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            HsViewHolder holder = onCreateHsViewHolder(parent, viewType);
+        public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
+            Holder holder = onCreateHsViewHolder(parent, viewType);
             return holder;
         }
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            final Holder hsViewHolder = (Holder) holder;
-            if(hsViewHolder != null){
-                hsViewHolder.setClickEventListener(mRecyclerView);
+        public void onBindViewHolder(Holder holder, int position) {
+            if(holder != null){
+                holder.setClickEventListener(mRecyclerView);
             }
             boolean isChecked = false;
             if(mRecyclerView != null){
                 isChecked = mRecyclerView.isChecked(position);
             }
-            onBindHsViewHolder(hsViewHolder, position, isChecked);
+            onBindHsViewHolder(holder, position, isChecked);
         }
         protected void setRecyclerView(HsRecyclerView view){
             this.mRecyclerView = view;
@@ -493,61 +493,63 @@ public class HsRecyclerView extends RecyclerView {
         public abstract void onBindHsViewHolder(Holder holder, int position, boolean isChecked, Cursor cursor);
     }
 
-    @Deprecated
-    public static abstract class HsCursorAdapter<Holder extends HsViewHolder> extends HsAdapter{
-        private Cursor mCursor = null;
+
+    public static abstract class HsListAdapter<Holder extends HsViewHolder, Item> extends HsAdapter<Holder>{
+        private List<Item> mItems;
+
+        public HsListAdapter() {
+            mItems = new ArrayList<>();
+        }
 
         @Override
-        public void onBindHsViewHolder(HsViewHolder holder, int position, boolean isChecked) {
-            if(mCursor == null)
-                return;
-
-            mCursor.moveToPosition(position);
-            Holder viewHolder = (Holder) holder;
-            onBindHsCursorViewHolder(viewHolder, position, isChecked, mCursor);
+        protected Item getItem(int position) {
+            return mItems.get(position);
         }
 
-        public void setCursor(Cursor cursor){
-            this.mCursor = cursor;
+        public boolean addItem(Item item){
+            return mItems.add(item);
         }
-        public Cursor getCursor(){
-            return this.mCursor;
+
+        public boolean addAll(Collection<? extends Item> c){
+            return mItems.addAll(c);
         }
-        public void closeCursor(){
-            if(mCursor != null && !mCursor.isClosed()){
-                mCursor.close();
-            }
+
+        public boolean addAll(int index, Collection<? extends Item> c){
+            return mItems.addAll(index, c);
         }
-        public void swapCursor(Cursor newCursor){
-            Cursor tempCursor = mCursor;
-            mCursor = newCursor;
-            if(tempCursor != null && !tempCursor.isClosed()){
-                tempCursor.close();
-            }
+
+        public Item remove(int index){
+            return mItems.remove(index);
+        }
+
+        public boolean remove(Item o){
+            return mItems.remove(o);
+        }
+
+        public boolean removeAll(Collection<?> c){
+            return mItems.removeAll(c);
+        }
+
+        public void clear(){
+            mItems.clear();
         }
 
         @Override
         public int getHsItemCount() {
-            if(mCursor == null || mCursor.isClosed())
-                return 0;
-            return mCursor.getCount();
+            return mItems.size();
         }
 
-        @Override
-        public int getItemViewType(int position) {
-//            return super.getItemViewType(position);
-            if(mCursor == null || mCursor.isClosed())
-                return super.getItemViewType(position);
-
-            mCursor.moveToPosition(position);
-            return getItemViewType(mCursor);
+        public ArrayList<Item> getCheckedItems(){
+            ArrayList<Item> result = new ArrayList<>();
+            HsRecyclerView recyclerView = getRecyclerView();
+            if(recyclerView != null){
+                ArrayList<Integer> checkedPosition = recyclerView.getChoiceIndex();
+                for(Integer idx : checkedPosition){
+                    result.add(getItem(idx));
+                }
+            }
+            return result;
         }
-
-        public int getItemViewType(@NonNull Cursor cursor){
-            return super.getItemViewType(cursor.getPosition());
-        }
-
-        public abstract void onBindHsCursorViewHolder(Holder holder, int position, boolean isChecked, Cursor cursor);
     }
 
 
